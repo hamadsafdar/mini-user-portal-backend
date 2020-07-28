@@ -1,0 +1,79 @@
+[
+	{
+		"email": "jahanzaib@hrt.com",
+		"gender": "male",
+		"phone_number": "0334-5026062",
+		"birthdate": 21011991,
+		"location": {
+			"street": "9156 dogwood ave",
+			"city": "islamabad",
+			"state": "federal",
+			"postcode": 7374
+		},
+		"username": "jahanzaib",
+		"first_name": "Jahanzaib",
+		"last_name": "Sarwar",
+		"title": "mr"
+	},
+	{
+		"email": "talha@hrt.com",
+		"gender": "male",
+		"birthdate": 29111992,
+		"location": {
+			"street": "Anex Street",
+			"city": "islamabad",
+			"state": "federal",
+			"postcode": 7852
+		},
+		"username": "talha",
+		"first_name": "Muhammad",
+		"last_name": "Talha",
+		"title": "mr"
+	},
+	{
+		"email": "sara@hrt.com",
+		"gender": "female",
+		"phone_number": "1234-8521478",
+		"location": {
+			"street": "First Street",
+			"city": "rwp",
+			"state": "punjab",
+			"postcode": 7147
+		},
+		"username": "sara",
+		"first_name": "Sara",
+		"last_name": "Junaid",
+		"title": "ms"
+	},
+	{
+		"email": "ahmed@hrt.com",
+		"gender": "male",
+		"phone_number": "3241-9825784",
+		"birthdate": 30101993,
+		"location": {
+			"street": "Park Enclave",
+			"city": "Lahore",
+			"state": "punjab",
+			"postcode": 6963
+		},
+		"username": "ahmed",
+		"first_name": "Ahmed",
+		"last_name": "Khan",
+		"title": "mr"
+	},
+	{
+		"email": "jasmine@hrt.com",
+		"gender": "female",
+		"birthdate": 02051994,
+		"location": {
+			"street": "57",
+			"city": "Islamabad",
+			"state": "federal",
+			"postcode": 44000
+		},
+		"username": "jasmine",
+		"first_name": "Jasmine",
+		"last_name": "Edward",
+		"title": "ms"
+	}
+]
