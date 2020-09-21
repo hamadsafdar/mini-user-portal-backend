@@ -20,12 +20,9 @@ class UserInfo {
 		this.last_name = last_name;
 		this.title = title;
 	}
-	formatDate() {}
-	formatUndefined() {
+	formatData() {
 		if (!this.phone_number) this.phone_number = 'nill';
 		if (!this.birthdate) this.birthdate = 'nill';
-	}
-	formatLocation() {
 		const locationString = `${this.location.street}, ${this.location.city}, ${this.location.state}.`;
 		this.location = locationString;
 	}

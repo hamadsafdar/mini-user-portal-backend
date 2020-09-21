@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const UserInfo = require('../models/UserBio');
+const UserInfo = require('../models/UserInfo');
 const jwt = require('jsonwebtoken');
 const { getInfo } = require('../services/info');
 const { secret: secret_key } = require('../config');
@@ -59,23 +59,21 @@ function register(req, res) {
 		});
 }
 
-async function fetchUserInfo() {
+async function fetchUserInfo(req, res) {
 	let response, data;
 	try {
 		response = await getInfo();
-
 		data = JSON.parse(response.data.replace(/ 0+(?![\. }])/g, ' '));
 	} catch (error) {
-		console.log(error, 'okay');
+		console.log(error);
 	}
 
 	const infoArr = data.map((user) => {
-		const userInfo = new Info(user);
-		userInfo.formatUndefined();
-		userInfo.formatLocation();
+		const userInfo = new UserInfo(user);
+		userInfo.formatData();
 		return userInfo;
 	});
-	res.send(infoArr);
+	res.json({ userInfo: infoArr });
 }
 
 module.exports = {
