@@ -1,83 +1,39 @@
+const getADInstance = require('../ad');
 const User = require('../models/User');
-const UserInfo = require('../models/UserInfo');
-const jwt = require('jsonwebtoken');
-const { getInfo } = require('../services/info');
-const { secret: secret_key } = require('../config');
+const GROUP_NAME = 'Mini-User Portal';
+
+let user;
 
 async function authenticate(req, res) {
-	const { username, password } = req.body;
-	let user;
-	try {
-		user = await User.findOne({ username: username }).exec();
-	} catch (error) {
-		res.status(500).json({
-			message: 'INTERNAL_ERROR'
-		});
-	}
+    const { username, password } = req.body;
+    const ad = getADInstance();
 
-	if (user) {
-		if (user.password === password) {
-			const token = jwt.sign({ username: username }, secret_key, {
-				algorithm: 'HS256'
-			});
-			return res.status(200).json({
-				token: token,
-				isAuthenticated: true
-			});
-		} else {
-			return res.status(401).json({
-				isAuthenticated: false,
-				message: 'INVALID_CREDS'
-			});
-		}
-	} else {
-		return res.status(400).json({
-			isAuthenticated: false,
-			message: 'INVALID_CREDS'
-		});
-	}
-}
+    try {
+        const isAuthenticated = await ad.authenticate(username, password);
+        const isAuthorized = await ad.isUserMemberOf(username, GROUP_NAME);
 
-function register(req, res) {
-	const { username, password } = req.body;
-	console.log(req.body);
-	const user = new User({
-		username: username,
-		password: password
-	});
-
-	user.save()
-		.then((stored) => {
-			res.status(201).json({
-				isSuccessful: true
-			});
-		})
-		.catch((err) => {
-			res.status(500).json({
-				isSuccessful: false
-			});
-		});
-}
-
-async function fetchUserInfo(req, res) {
-	let response, data;
-	try {
-		response = await getInfo();
-		data = JSON.parse(response.data.replace(/ 0+(?![\. }])/g, ' '));
-	} catch (error) {
-		console.log(error);
-	}
-
-	const infoArr = data.map((user) => {
-		const userInfo = new UserInfo(user);
-		userInfo.formatData();
-		return userInfo;
-	});
-	res.json({ userInfo: infoArr });
+        if (isAuthenticated && isAuthorized) {
+            const userEntry = await ad.findUser(username);
+            user = new User(userEntry);
+            await user.initUserGroups();
+            return res.json({
+                isAuthenticated: true,
+                user: user
+            });
+        } else {
+            return res.status(401).json({
+                message: 'INVALID_CREDS/NOT_PRIVILAGISED',
+                isAuthenticated: false
+            });
+        }
+    } catch (error) {
+        // console.log(error);
+        return res.status(500).json({
+            message: 'INTERNAL_ERROR'
+        });
+    }
 }
 
 module.exports = {
-	authenticate,
-	register,
-	fetchUserInfo
+    authenticate
 };

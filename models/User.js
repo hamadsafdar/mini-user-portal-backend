@@ -1,9 +1,28 @@
-const mongoose = require('mongoose');
-const Shcema = mongoose.Schema;
+const Application = require('./Application');
+const getAdInstance = require('../ad');
 
-const userSchema = new Shcema({
-	username: { type: String, required: true },
-	password: { type: String, required: true }
-});
+function User({ sAMAccountName, cn, mail, userPrincipalName }) {
+    this.id = sAMAccountName;
+    this.name = cn;
+    this.email = mail;
+    this.principalName = userPrincipalName;
+    this.groups = [];
+    this.applications = [];
+}
 
-module.exports = mongoose.model('user', userSchema);
+User.prototype.getGrantedApplications = (applications) => {};
+
+User.prototype.initUserGroups = async function () {
+    const activeDirectory = getAdInstance();
+    try {
+        const uGroups = await activeDirectory.getGroupMembershipForUser(
+            this.principalName
+        );
+        if (!uGroups) return new Error('USER_NOT_FOUND');
+        else this.groups = uGroups;
+    } catch (error) {
+        return error;
+    }
+};
+
+module.exports = User;

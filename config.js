@@ -6,7 +6,7 @@ module.exports = {
   ad: {
     username: "hsafdar@hrt.demo.com",
     password: "iiui@321",
-    url: "ldap://",
-    baseDn: "",
+    url: "ldaps://172.16.112.128:636",
+    baseDn: "dc=hrt, dc=demo, dc=com",
   },
 };
