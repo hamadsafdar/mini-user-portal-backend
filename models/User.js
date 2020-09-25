@@ -10,7 +10,11 @@ function User({ sAMAccountName, cn, mail, userPrincipalName }) {
     this.applications = [];
 }
 
-User.prototype.getGrantedApplications = (applications) => {};
+User.prototype.getGrantedApplications = function (applications) {
+    const userApplications = applications.filter((application) => {
+        return this.groups.includes(application.group);
+    });
+};
 
 User.prototype.initUserGroups = async function () {
     const activeDirectory = getAdInstance();
