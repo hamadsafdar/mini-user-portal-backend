@@ -7,7 +7,7 @@ const cors = require('cors');
 const dbConnect = require('./database');
 dbConnect();
 //routes
-const userRoutes = require('./routes/user');
+const userRoutes = require('./src/v1/user/routes/user');
 const groupRoutes = require('./routes/group');
 const applicationRoutes = require('./routes/application');
 //initializing app
@@ -19,10 +19,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 //User application routes will go below
-app.use('/api/user', userRoutes);
+app.use('/api/v1/user', userRoutes);
 
 //Following routes are for administrating purposes
-app.use('/api/admin/group', groupRoutes);
-app.use('/api/admin/application', applicationRoutes);
+app.use('/api/v1/admin/group', groupRoutes);
+app.use('/api/v1/admin/application', applicationRoutes);
 
 module.exports = app;

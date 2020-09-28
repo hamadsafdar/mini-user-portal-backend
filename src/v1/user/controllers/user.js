@@ -1,8 +1,7 @@
 const getADInstance = require('../ad');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../../models/User');
 const { token_secret } = require('../config');
-const GROUP_NAME = 'Mini-User Portal';
 
 async function authenticate(req, res) {
     const { username, password } = req.body;
@@ -87,12 +86,23 @@ async function authenticate(req, res) {
 async function fetchUser(req, res) {
     let user;
     const activeDirectory = getADInstance();
-    const { userPrincipalName } = req.decoded;
+    const { sAMAccountName } = req.decoded;
     try {
-        const userEntry = await activeDirectory.findUser(userPrincipalName);
+        const userEntry = await activeDirectory.findUser(
+            sAMAccountName + '@hrt.demo.com'
+        );
+        console.log(userEntry);
         user = new User(userEntry);
-        user.initUserGroups();
-    } catch (error) {}
+        await user.initUserGroups();
+        return res.json({
+            user
+        });
+    } catch (error) {
+        console.log('USER CONTROLLER FETCH USER: ', error);
+        return res.status(500).json({
+            message: 'INTERNAL_ERROR'
+        });
+    }
 }
 
 module.exports = {
