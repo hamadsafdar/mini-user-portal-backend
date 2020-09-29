@@ -4,12 +4,11 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 //database
-const dbConnect = require('./database');
-dbConnect();
+require('./database')();
+
 //routes
-const userRoutes = require('./src/v1/user/routes/user');
-const groupRoutes = require('./routes/group');
-const applicationRoutes = require('./routes/application');
+const v1AdminRoutes = require('./src/v1/admin/routes');
+const v1UserRoutes = require('./src/v1/user/routes');
 //initializing app
 const app = express();
 //middlewares
@@ -18,11 +17,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//User application routes will go below
-app.use('/api/v1/user', userRoutes);
-
-//Following routes are for administrating purposes
-app.use('/api/v1/admin/group', groupRoutes);
-app.use('/api/v1/admin/application', applicationRoutes);
+app.use('/api/v1/admin', v1AdminRoutes);
+app.use('/api/v1/user', v1UserRoutes);
 
 module.exports = app;

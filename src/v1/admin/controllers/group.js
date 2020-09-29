@@ -1,4 +1,4 @@
-const Group = require('../models/Group');
+const Group = require('../../models/Group');
 
 async function create(req, res) {
     const { name, description } = req.body;
@@ -43,8 +43,26 @@ async function getAll(req, res) {
     } catch (error) {}
 }
 
+async function get(req, res) {
+    const { groupId } = req.params;
+    try {
+        const group = await Group.findById(groupId);
+        return res.json({
+            group
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'INTERNAL_ERROR'
+        });
+    }
+}
+
+async function edit(req, res) {}
+
 module.exports = {
     create,
     remove,
-    getAll
+    getAll,
+    edit,
+    get
 };

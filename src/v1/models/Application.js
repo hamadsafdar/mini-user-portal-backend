@@ -9,6 +9,4 @@ const applicationSchema = new Schema({
     groupsAllowed: [{ type: Schema.Types.ObjectId, ref: 'group' }]
 });
 
-applicationSchema.methods.isGrantedUser = function (user) {};
-
 module.exports = model('application', applicationSchema);

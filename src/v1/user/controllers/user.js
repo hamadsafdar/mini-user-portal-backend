@@ -1,7 +1,7 @@
 const getADInstance = require('../ad');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
-const { token_secret } = require('../config');
+const { token_secret } = require('../../config');
 
 async function authenticate(req, res) {
     const { username, password } = req.body;

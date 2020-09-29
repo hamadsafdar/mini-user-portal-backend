@@ -1,4 +1,4 @@
-const Application = require('../models/Application');
+const Application = require('../../models/Application');
 
 async function create(req, res) {
     const { name, link, description, group } = req.body;
@@ -37,6 +37,16 @@ async function remove(req, res) {
     }
 }
 
+async function get(req, res) {
+    const { appId } = req.params;
+    try {
+        const application = await Application.findById(appId);
+        return res.json({
+            application
+        });
+    } catch (error) {}
+}
+
 async function getAll(req, res) {
     try {
         const applications = await Application.find();
@@ -51,8 +61,12 @@ async function getAll(req, res) {
     }
 }
 
+async function edit(req, res) {}
+
 module.exports = {
     create,
     remove,
-    getAll
+    getAll,
+    get,
+    edit
 };
