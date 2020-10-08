@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { token_secret } = require('../config');
+const { token_secret } = require('../../config');
 
 function authenticateToken(req, res, next) {
     // Gather the jwt access token from the request header
@@ -11,8 +11,6 @@ function authenticateToken(req, res, next) {
         }); // if there isn't any token
 
     jwt.verify(token, token_secret, (err, decoded) => {
-        console.log(err);
-
         if (err)
             return res.status(403).json({
                 message: 'INVALID_TOKEN'

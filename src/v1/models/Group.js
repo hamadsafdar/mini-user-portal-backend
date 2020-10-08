@@ -7,7 +7,7 @@ const groupSchema = new Schema(
             type: String,
             default: 'This is the description of the group.'
         },
-        type: { type: String, required: true },
+        type: { type: String },
         members: [{ type: Schema.Types.ObjectId, ref: 'user' }]
     },
     { timestamps: true }

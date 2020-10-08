@@ -4,7 +4,9 @@ const userController = require('../controllers/user');
 
 const router = express.Router();
 
-router.post('/', userController.authenticate);
+router.post('/authenticate', userController.authenticate);
+
+router.get('/applications', userController.fetchApplications);
 
 router.get('/', authenticateToken, userController.fetchUser);
 

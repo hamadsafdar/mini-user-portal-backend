@@ -1,6 +1,7 @@
-const getADInstance = require('../ad');
+const getADInstance = require('../../../../ad');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
+const Application = require('../../models/Application');
 const { token_secret } = require('../../config');
 
 async function authenticate(req, res) {
@@ -20,7 +21,7 @@ async function authenticate(req, res) {
             );
             const isAuthorized = await activeDirectory.isUserMemberOf(
                 username,
-                GROUP_NAME
+                'Mini-User Portal'
             );
             if (isAuthenticated && isAuthorized) {
                 const { sAMAccountName } = user;
@@ -42,45 +43,6 @@ async function authenticate(req, res) {
             message: 'INTERNAL_ERROR'
         });
     }
-
-    // try {
-    //     const isAuthenticated = await activeDirectory.authenticate(
-    //         username,
-    //         password
-    //     );
-    //     const isAuthorized = await activeDirectory.isUserMemberOf(
-    //         username,
-    //         GROUP_NAME
-    //     );
-
-    //     if (isAuthenticated && isAuthorized) {
-    //         const { userPrincipalName } = await activeDirectory.findUser(
-    //             username
-    //         );
-    //         const token = jwt.sign(
-    //             {
-    //                 userPrincipalName: userPrincipalName
-    //             },
-    //             token_secret,
-    //             {
-    //                 expiresIn: '1h'
-    //             }
-    //         );
-    //         return res.json({
-    //             token: token
-    //         });
-    //     } else {
-    //         return res.status(401).json({
-    //             message: 'INVALID_CREDS/NOT_PRIVILAGISED',
-    //             isAuthenticated: false
-    //         });
-    //     }
-    // } catch (error) {
-    //     // console.log(error);
-    //     return res.status(500).json({
-    //         message: 'INTERNAL_ERROR'
-    //     });
-    // }
 }
 
 async function fetchUser(req, res) {
@@ -91,9 +53,7 @@ async function fetchUser(req, res) {
         const userEntry = await activeDirectory.findUser(
             sAMAccountName + '@hrt.demo.com'
         );
-        console.log(userEntry);
         user = new User(userEntry);
-        await user.initUserGroups();
         return res.json({
             user
         });
@@ -105,7 +65,21 @@ async function fetchUser(req, res) {
     }
 }
 
+async function fetchApplications(req, res) {
+    try {
+        const applications = await Application.find();
+        return res.json({
+            applications: applications
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'INTERNAL_ERROR'
+        });
+    }
+}
+
 module.exports = {
     authenticate,
-    fetchUser
+    fetchUser,
+    fetchApplications
 };

@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const activeDirectory = require('../ad')();
+const activeDirectory = require('../../../ad')();
 
 const applicationSchema = new Schema({
     appId: { type: String, default: `APP-${Date.now()}` },

@@ -6,12 +6,16 @@ router.post('/', userController.create);
 
 router.get('/', userController.getAll);
 
+router.patch('/', userController.edit);
+
 router.get('/:userId', userController.get);
 
 router.delete('/:userId', userController.remove);
 
-router.post('/group/add', userController.addUserToGroup);
+router.post('/status/:userId', userController.changeStatus);
 
-router.post('/group/remove', userController.removeUserFromGroup);
+router.post('/membership/add', userController.addUserToGroup);
+
+router.post('/membership/remove', userController.removeUserFromGroup);
 
 module.exports = router;

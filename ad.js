@@ -1,5 +1,5 @@
 const ActiveDirectory = require('activedirectory2').promiseWrapper;
-const { ad: adConfig } = require('./config');
+const { ad: adConfig } = require('./src/v1/config');
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 let instance;
 

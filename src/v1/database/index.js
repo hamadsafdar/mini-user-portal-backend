@@ -25,6 +25,12 @@ const close = () => {
     }
 };
 
-getInstance();
-
-setTimeout(() => close(), 4000);
+module.exports = {
+    getInstance,
+    close,
+    table: {
+        USER: `"MRJ92887"."USERS"`,
+        GROUP: '',
+        APPLICATION: ''
+    }
+};
