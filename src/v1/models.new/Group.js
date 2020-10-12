@@ -11,4 +11,6 @@ Group.prototype.delete = async function () {};
 
 Group.prototype.update = async function (newOptions) {};
 
+Group.prototype.getUsers = async function () {};
+
 module.exports = Group;
