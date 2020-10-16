@@ -1,4 +1,4 @@
-function Group({ name, type, description, members = [] }) {
+function Group({ GROUP_ID: id, GROUP_NAME: name, DESCRIPTION: description }) {
     this.name = name;
     this.type = type;
     this.description = description;

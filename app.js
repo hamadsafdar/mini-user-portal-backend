@@ -3,9 +3,6 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 
-//database
-require('./database')();
-
 //routes
 const v1AdminRoutes = require('./src/v1/admin/routes');
 const v1UserRoutes = require('./src/v1/user/routes');

@@ -1,4 +1,3 @@
-const { table } = require('../database');
 const db = require('../database');
 const connection = db.getInstance();
 
@@ -58,6 +57,4 @@ const ifGroupExists = (name) => {
         : true;
 };
 
-const fetchUsers = fetchAll('Groups');
-
-console.log(fetchUsers());
+module.exports = { insert, remove, fetchAll };

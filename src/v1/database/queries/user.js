@@ -1,30 +1,37 @@
+const user = require('../../admin/controllers.new/user');
+const { collection } = require('../../models/User');
 const db = require('../index');
 const connection = db.getInstance();
-
 const { USER, GROUP, USER_GROUPS } = db.table;
 
 const add = ({ name, email, sAMAccountName, phoneNumber }) => {
-    const query = `INSERT INTO ${USER}(full_name, email, phone_number, sam_account_name) VALUES ('${name}', '${email}', '${phoneNumber}', '${sAMAccountName}');`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    const query = `INSERT INTO ${USER} 
+                        (full_name, email, phone_number, sam_account_name) 
+                    VALUES 
+                        ('${name}', '${email}', '${phoneNumber}', '${sAMAccountName}');`;
+
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) reject(err);
+            else resolve(true);
+        });
+    });
 };
 
 /**
  * This function removes a user against given ID
  * @param {Number} id - User's ID
- * @returns {Array | Error } empty array if successful or error if fails
+ * @returns {Promise} empty array if successful or error if fails
  */
 
-const removeById = (id) => {
+const removeById = async (id) => {
     const query = `DELETE FROM ${USER} WHERE user_id = ${id};`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) reject(err);
+            resolve(true);
+        });
+    });
 };
 
 /**
@@ -35,11 +42,15 @@ const removeById = (id) => {
 
 const getById = (id) => {
     const query = `SELECT * FROM ${USER} WHERE user_id = ${id};`;
-    try {
-        return connection.querySync(query)[0];
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
 };
 
 const modify = () => {};
@@ -52,25 +63,25 @@ const modify = () => {};
  * @returns {Array | Error}  Array of rows or error if fails
  */
 
-const getAll = (limit, offset) => {
+const getAll = async (limit, offset) => {
     let query = `SELECT * FROM ${USER} ORDER BY user_id`;
     if (limit && offset) {
         query = `${query} LIMIT ${limit} OFFSET ${offset};`;
     }
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return await connection.queryAsync(query);
 };
 
 const changeStatus = (id, status) => {
     const query = `UPDATE ${USER} SET is_enabled = ${!status} WHERE user_id = ${id};`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
 };
 
 /**
@@ -78,19 +89,24 @@ const changeStatus = (id, status) => {
  * @returns {Array | Error}
  */
 
-const getTotalRowsCount = () => {
+const getTotalCount = async () => {
     let query = `SELECT COUNT(*) ROW_COUNT FROM ${USER}`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            // if (err) {
+            //     reject(err);
+            // } else {
+            //     resolve(rows);
+            // }
+            reject(new Error('Look in to definition'));
+        });
+    });
 };
 
 /**
  *
  * @param {Number} userId
- * @returns {Array | Error } array of Groups or error if fails
+ * @returns {Promise} array of Groups or error if fails
  */
 
 const getGroups = (userId) => {
@@ -102,43 +118,91 @@ const getGroups = (userId) => {
             ON ${GROUP}.group_id = ${USER_GROUPS}.group_id 
         WHERE ${USER}.user_id = ${userId};
     `;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
 };
 
 /**
  * This function adds user to group against user's and group's ID
  * @param {Number} userId - ID of user
- * @param {Number} groupId - ID of group
- * @returns {Array | Error } empty array if successful or error if fails
+ * @param {Number[]} groupId - ID of group
+ * @returns {Promise} empty array if successful or error if fails
  */
 
-const addToGroup = (userId, groupId) => {
-    const query = `INSERT INTO "${USER_GROUPS}" (user_id, group_id) VALUES ("${userId}", "${groupId}");`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+const addToGroup = (userId, groupIdArr) => {
+    let query = `INSERT INTO ${USER_GROUPS} (user_id, group_id) VALUES `;
+    userId = parseInt(userId);
+    groupIdArr.forEach((groupId) => {
+        groupId = parseInt(groupId);
+        query += `(${userId}, ${groupId}), `;
+    });
+    //removing ',' at the end of string
+    query = query.substr(0, query.length - 2);
+    query += ';';
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(true);
+            }
+        });
+    });
 };
 
 /**
  * This function removes user from group against user's and group's ID
  * @param {Number} userId
  * @param {Number} groupId
- * @returns {Array | Error } empty array if successful or error if fails
+ * @returns {Promise} empty array if successful or error if fails
  */
 
-const removeFromGroup = (userId, groupId) => {
+const removeFromGroup = async (userId, groupId) => {
     const query = `DELETE FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id = ${groupId} ;`;
-    try {
-        return connection.querySync(query);
-    } catch (error) {
-        return error;
-    }
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+};
+
+const checkMembership = (userId, groupId) => {
+    const query = `SELECT * FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id = ${groupId};`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (rows.length === 1) resolve(true);
+                else resolve(false);
+            }
+        });
+    });
+};
+
+const ifExists = (userId) => {
+    const query = `SELECT * FROM ${USER} WHERE user_id = ${userId};`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (rows.length === 1) resolve(true);
+                else resolve(false);
+            }
+        });
+    });
 };
 
 module.exports = {
@@ -148,5 +212,10 @@ module.exports = {
     modify,
     getAll,
     changeStatus,
-    getTotalRowsCount
+    getTotalCount,
+    getGroups,
+    addToGroup,
+    removeFromGroup,
+    checkMembership,
+    ifExists
 };
