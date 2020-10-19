@@ -1,72 +1,105 @@
 const Application = require('../../models/Application');
 
-async function create(req, res) {
-    const { name, link, description, group } = req.body;
+const {
+    internalErrorResponse,
+    customFailResponse,
+    successResponse
+} = require('../../util').responseGenerator;
 
-    const appplication = new Application({
-        name,
-        link,
-        description,
-        group
+async function create(req, res) {
+    const { name, url, description } = req.body;
+    const application = new Application({
+        APP_ID: null,
+        APP_NAME: name,
+        URL: url,
+        DESCRIPTION: description
     });
     try {
-        await appplication.save();
-        return res.status(201).json({
-            message: 'APPLICATION_CREATED'
-        });
+        await application.save();
+        return successResponse(res, 'APPLICATION_CREATED');
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
 }
 
 async function remove(req, res) {
-    const id = req.params.appId;
+    const { appId } = req.params;
     try {
-        await Application.findByIdAndDelete(id);
-        return res.json({
-            message: 'APPLICATION_DELETED'
-        });
+        await Application.delete(appId);
+        return successResponse(res, 'APPLICATION_DELETED');
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
 }
 
-async function get(req, res) {
+async function getById(req, res) {
     const { appId } = req.params;
     try {
         const application = await Application.findById(appId);
         return res.json({
             application
         });
-    } catch (error) {}
+    } catch (error) {
+        console.log('Controller');
+        return internalErrorResponse(res);
+    }
 }
 
 async function getAll(req, res) {
+    const { pageNumber } = req.query;
+    const LIMIT = 20;
+    let offset = 0;
+    offset = LIMIT * (parseInt(pageNumber) - 1);
+
     try {
-        const applications = await Application.find();
+        const applications = await Application.find(LIMIT, offset);
         return res.json({
             applications
         });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
 }
 
-async function edit(req, res) {}
+async function allowGroups(req, res) {
+    const { appId, groupIdArr } = req.body;
+    try {
+        await Application.allowGroups(appId, groupIdArr);
+        return successResponse(res, 'GROUPS_ALLOWED');
+    } catch (error) {
+        return internalErrorResponse(res);
+    }
+}
+
+async function removeAllowedGroups(req, res) {
+    const { appId, groupIdArr } = req.body;
+    try {
+        await Application.removeAllowedGroups(appId, groupIdArr);
+        return successResponse(res, 'GROUPS_REMOVED');
+    } catch (error) {
+        return internalErrorResponse(res);
+    }
+}
+
+async function getAllowedGroups(req, res) {
+    const { appId } = req.params;
+    try {
+        const allowedGroups = await Application.getAllowedGroups(appId);
+        return res.json({
+            allowGroups: allowedGroups
+        });
+    } catch (error) {
+        return internalErrorResponse(res);
+    }
+}
 
 module.exports = {
     create,
     remove,
+    getById,
     getAll,
-    get,
-    edit
+    allowGroups,
+    removeAllowedGroups,
+    getAllowedGroups
 };

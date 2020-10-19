@@ -1,46 +1,29 @@
 const Group = require('../../models/Group');
+const {
+    successResponse,
+    internalErrorResponse,
+    customFailResponse
+} = require('../../util').responseGenerator;
 
 async function create(req, res) {
     const { name, description } = req.body;
-
-    const group = new Group({
-        name: name,
-        description: description
-    });
+    const group = new Group({ GROUP_NAME: name, DESCRIPTION: description });
     try {
         await group.save();
-        return res.status(201).json({
-            message: 'GROUP_CREATED'
-        });
+        return successResponse(res, 'GROUP_CREATED');
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
 }
 
 async function remove(req, res) {
-    const groupId = req.params.groupId;
+    const { groupId } = req.params;
     try {
-        await Group.findByIdAndDelete(groupId);
-        return res.json({
-            message: 'GROUP_REMOVED'
-        });
+        await Group.removeById(groupId);
+        return successResponse(res, 'GROUP_DELETED');
     } catch (error) {
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
-}
-
-async function getAll(req, res) {
-    try {
-        const groups = await Group.find();
-        return res.json({
-            groups: groups
-        });
-    } catch (error) {}
 }
 
 async function get(req, res) {
@@ -51,18 +34,37 @@ async function get(req, res) {
             group
         });
     } catch (error) {
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
+        return internalErrorResponse(res);
     }
 }
 
-async function edit(req, res) {}
+async function getMembers(req, res) {
+    const { groupId } = req.params;
+    try {
+        const members = await Group.getMembers(groupId);
+        const total = members.length;
+        return res.json({
+            members,
+            total
+        });
+    } catch (error) {
+        console.log(error);
+        return internalErrorResponse(res);
+    }
+}
 
-module.exports = {
-    create,
-    remove,
-    getAll,
-    edit,
-    get
-};
+async function getAll(req, res) {
+    const { pageNumber } = req.query;
+    const LIMIT = 20;
+    const offset = LIMIT * (parseInt(pageNumber) - 1);
+    try {
+        const groups = await Group.find(LIMIT, offset);
+        return res.status({
+            groups
+        });
+    } catch (error) {
+        return internalErrorResponse(res);
+    }
+}
+
+module.exports = { create, remove, get, getMembers, getAll };

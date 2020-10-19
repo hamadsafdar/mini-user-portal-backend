@@ -1,6 +1,6 @@
-const Application = require('../../../models.new/Application');
-const Group = require('../../../models.new/Group');
-const User = require('../../../models.new/User');
+const Application = require('../../../models/Application');
+const Group = require('../../../models/Group');
+const User = require('../../../models/User');
 const { customFailResponse } = require('../../../util').responseGenerator;
 
 async function ifExists(req, res, next) {

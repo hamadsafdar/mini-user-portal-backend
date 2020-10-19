@@ -1,8 +1,7 @@
-const User = require('../../models/User');
 const db = require('../index');
 const connection = db.getInstance();
 
-const { GROUP, USER } = db.table;
+const { GROUP, USER, USER_GROUPS } = db.table;
 
 const add = ({ name, description }) => {
     const query = `INSERT INTO ${GROUP} 
@@ -39,33 +38,49 @@ const getById = (id) => {
 
 const modify = () => {};
 
+const exists = (groupId) => {
+    const query = `SELECT * FROM ${GROUP} WHERE group_id = ${groupId};`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows.length === 0 ? false : true);
+        });
+    });
+};
+
 const getAll = (limit, offset) => {
     const query = `SELECT * FROM ${GROUP} ORDER BY group_id LIMIT ${limit} OFFSET ${offset};`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) reject(err);
-            resolve(true);
+            resolve(rows);
         });
     });
 };
 
-const getMembers = (userId) => {
+const getMembers = (groupId) => {
     let query = `
-    SELECT ${USER}.user_id, ${USER}.user_name, ${USER}.email FROM  ${USER} 
-        INNER JOIN ${USER_GROUPS} 
-            ON ${USER_GROUPS}.user_id = ${USER}.user_id 
-        INNER JOIN ${GROUP}
-            ON ${GROUP}.group_id = ${USER_GROUPS}.group_id 
-        WHERE ${USER}.user_id = ${userId};
+    SELECT 
+        ${USER}.user_id,
+        ${USER}.full_name,
+        ${USER}.email,
+        ${USER}.sam_account_name,
+        ${USER}.phone_number
+    FROM ${GROUP}
+        INNER JOIN ${USER_GROUPS}
+            ON ${USER_GROUPS}.group_id = ${GROUP}.group_id
+        INNER JOIN ${USER}
+        ON ${USER}.user_id = ${USER_GROUPS}.user_id
+    WHERE 
+        ${GROUP}.group_id = ${groupId}
     `;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
-            // if (err) {
-            //     reject(err);
-            // } else {
-            //     resolve(rows);
-            // }
-            reject(new Error('Look into query'));
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
         });
     });
 };
@@ -91,5 +106,6 @@ module.exports = {
     modify,
     getAll,
     getMembers,
-    getTotalCount
+    getTotalCount,
+    exists
 };

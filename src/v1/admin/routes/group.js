@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const { ifExists } = require('../middlewares/operation-validators');
 const groupController = require('../controllers/group');
 
 router.post('/', groupController.create);
 
-router.delete('/:groupId', groupController.remove);
+router.delete('/:groupId', ifExists, groupController.remove);
 
-router.get('/:groupId', groupController.get);
+router.get('/:groupId', ifExists, groupController.get);
+
+router.get('/members/:groupId', groupController.getMembers);
 
 router.get('/', groupController.getAll);
-
-router.patch('/', groupController.edit);
 
 module.exports = router;

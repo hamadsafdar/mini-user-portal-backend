@@ -1,38 +1,88 @@
-const { Schema, model } = require('mongoose');
-const Group = require('./Group');
+const queries = require('../database/queries/user');
 
-const userSchema = new Schema(
-    {
-        sAMAccountName: { type: String, unique: true, required: true },
-        name: { type: String, required: true },
-        email: { type: String },
-        principalName: { type: String, required: true },
-        groupMembership: [{ type: Schema.Types.ObjectId, ref: 'group' }],
-        isEnable: { type: Boolean, default: false }
-    },
-    { timestamps: true }
-);
+function User({
+    USER_ID: id,
+    FULL_NAME: name,
+    SAM_ACCOUNT_NAME: sAMAccountName,
+    EMAIL: email,
+    PHONE_NUMBER: phoneNumber,
+    IS_ENABLED: status
+}) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.sAMAccountName = sAMAccountName;
+    this.phoneNumber = phoneNumber;
+    this.isEnabled = status;
+}
 
-userSchema.methods.addToGroup = async function (groupIds) {
-    this.groupMembership = [...this.groupMembership, ...groupIds];
+User.prototype.save = async function () {
+    return await queries.add(this);
+};
+
+User.prototype.addToGroup = async function (groupId) {
+    return await queries.addToGroup(this.id, groupId);
+};
+
+User.prototype.removeFromGroups = async function (groupId) {
+    return await queries.removeFromGroup(this.id, groupId);
+};
+
+User.prototype.update = async function (newOptions) {};
+
+User.prototype.changeStatus = async function () {
+    return await queries.changeStatus(this.id, this.isEnabled);
+};
+
+User.prototype.getGroups = async function () {
+    return await queries.getGroups(this.id);
+};
+
+User.prototype.isMemberOf = async function (groupId) {
+    return await queries.checkMembership(this.id, groupId);
+};
+
+User.findById = async function (userId) {
     try {
-        return await this.save();
+        const user = await queries.getById(userId);
+        return await Promise.resolve(new User(user));
     } catch (error) {
-        return new Error(
-            `Unable to update the user settings. \nError: ${error}`
-        );
+        return Promise.reject(error);
     }
 };
 
-userSchema.methods.removeFromGroup = async function (groupIds) {
-    this.groupMembership.splice(this.groupMembership.indexOf(groupId), 1);
+User.find = async function (limit, offset) {
     try {
-        return await this.save();
+        const users = await queries.getAll(limit, offset);
+        const mUsers = users.map((user) => new User(user));
+        return Promise.resolve(mUsers);
     } catch (error) {
-        return new Error(
-            `Unable to update the user settings. \nError: ${error}`
-        );
+        return Promise.reject(error);
     }
 };
 
-module.exports = model('user', userSchema);
+User.ifExists = async function (userId) {
+    return await queries.ifExists(userId);
+};
+
+User.isMemberOf = async function (userId, groupId) {
+    return await queries.checkMembership(userId, groupId);
+};
+
+User.delete = async function (userId) {
+    return await queries.removeById(userId);
+};
+
+User.getGroups = async function (userId) {
+    return await queries.getGroups(userId);
+};
+
+User.addToGroup = async function (userId, groupId) {
+    return await queries.addToGroup(userId, groupId);
+};
+
+User.removeFromGroup = async function (userId, groupId) {
+    return await queries.removeFromGroup(userId, groupId);
+};
+
+module.exports = User;

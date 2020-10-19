@@ -1,34 +1,56 @@
-const { Schema, model } = require('mongoose');
+const queries = require('../database/queries/group');
+const User = require('../models.new/User');
 
-const groupSchema = new Schema(
-    {
-        name: { type: String, required: true },
-        description: {
-            type: String,
-            default: 'This is the description of the group.'
-        },
-        type: { type: String },
-        members: [{ type: Schema.Types.ObjectId, ref: 'user' }]
-    },
-    { timestamps: true }
-);
+function Group({
+    GROUP_ID: id = null,
+    GROUP_NAME: name,
+    DESCRIPTION: description
+}) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+}
 
-groupSchema.methods.addMember = async function (id) {
+Group.prototype.save = async function () {
+    return await queries.add(this);
+};
+
+Group.getMembers = async function (groupId) {
     try {
-        this.members.push(id);
-        return await this.save();
+        const members = await queries.getMembers(groupId);
+        const users = members.map((member) => new User(member));
+        return Promise.resolve(users);
     } catch (error) {
-        return new Error('Failed to update group setting!.\nERROR: ', error);
+        return Promise.reject(error);
+    }
+
+    // return await queries.getMembers(groupId);
+};
+
+Group.findById = async function (groupId) {
+    try {
+        const group = await queries.getById(groupId);
+        return Promise.resolve(new Group(group));
+    } catch (error) {
+        return Promise.reject(error);
     }
 };
 
-groupSchema.methods.removeMember = async function (id) {
-    this.members.splice(this.members.splice(id), 1);
-    try {
-        return await this.save();
-    } catch (error) {
-        return new Error('Failed to update group setting!.\nERROR: ', error);
-    }
+Group.removeById = async function (groupId) {
+    return await queries.removeById(groupId);
 };
 
-module.exports = model('group', groupSchema);
+Group.isExists = async function (groupId) {
+    return await queries.exists(groupId);
+};
+
+Group.find = async function (limit, offset) {
+    try {
+        const groups = await queries.getAll(limit, offset);
+        const mGroups = groups.map((group) => new Group(group));
+        return Promise.resolve(mGroups);
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
+module.exports = Group;

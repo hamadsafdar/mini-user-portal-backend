@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { db } = require('./src/v1/config');
+const { db } = require('../config');
 
 mongoose.Promise = global.Promise;
 

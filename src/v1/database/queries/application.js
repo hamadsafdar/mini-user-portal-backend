@@ -1,7 +1,7 @@
 const db = require('../index');
 const connection = db.getInstance();
 
-const { APPLICATION, APPLICATION_GROUPS } = db.table;
+const { APPLICATION, APPLICATION_GROUPS, GROUP } = db.table;
 
 const add = ({ name, description, url }) => {
     const query = `INSERT INTO ${APPLICATION}
@@ -39,7 +39,7 @@ const getById = (id) => {
 const modify = () => {};
 
 const getAll = (limit, offset) => {
-    const query = `SELECT * FROM ${APPLICATION} ORDER BY app_id LIMIT ${limit} OFFSET ${offset};`;
+    const query = `SELECT * FROM ${APPLICATION} LIMIT ${limit} OFFSET ${offset};`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) reject(err);
@@ -51,6 +51,7 @@ const getAll = (limit, offset) => {
 const allowGroups = (appId, groupIdArr) => {
     let query = `INSERT INTO ${APPLICATION_GROUPS} (app_id, group_id) VALUES `;
     appId = parseInt(appId);
+    console.log(groupIdArr);
     groupIdArr.forEach((groupId) => {
         groupId = parseInt(groupId);
         query += `(${appId}, ${groupId}), `;
@@ -98,7 +99,28 @@ const getTotalCount = () => {
     });
 };
 
-const getAllowedGroups = () => {};
+const getAllowedGroups = (appId) => {
+    const query = `
+    SELECT
+        ${GROUP}.group_id,
+        ${GROUP}.group_name,
+        ${GROUP}.description
+    FROM
+        ${APPLICATION}
+    INNER JOIN ${APPLICATION_GROUPS}
+        ON ${APPLICATION_GROUPS}.app_id = ${APPLICATION}.app_id
+    INNER JOIN ${GROUP}
+        ON ${GROUP}.group_id = ${APPLICATION_GROUPS}.group_id
+    WHERE
+        ${APPLICATION}.app_id = ${appId}
+    `;
+    return new Promise((resolve, reject) => {
+        connection.query((err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+};
 
 const exists = (appId) => {
     const query = `SELECT * FROM ${APPLICATION} WHERE app_id = ${appId};`;
