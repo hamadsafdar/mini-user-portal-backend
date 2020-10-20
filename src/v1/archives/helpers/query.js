@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../../database');
 const connection = db.getInstance();
 
 const insert = (table) => (columnNames, values) => {

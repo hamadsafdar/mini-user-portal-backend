@@ -66,16 +66,16 @@ async function fetchUser(req, res) {
 }
 
 async function fetchApplications(req, res) {
-    try {
-        const applications = await Application.find();
-        return res.json({
-            applications: applications
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: 'INTERNAL_ERROR'
-        });
-    }
+    // try {
+    //     const applications = await Application.find();
+    //     return res.json({
+    //         applications: applications
+    //     });
+    // } catch (error) {
+    //     return res.status(500).json({
+    //         message: 'INTERNAL_ERROR'
+    //     });
+    // }
 }
 
 module.exports = {

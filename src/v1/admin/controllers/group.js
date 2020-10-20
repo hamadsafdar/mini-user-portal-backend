@@ -1,8 +1,7 @@
 const Group = require('../../models/Group');
 const {
     successResponse,
-    internalErrorResponse,
-    customFailResponse
+    internalErrorResponse
 } = require('../../util').responseGenerator;
 
 async function create(req, res) {
@@ -59,7 +58,7 @@ async function getAll(req, res) {
     const offset = LIMIT * (parseInt(pageNumber) - 1);
     try {
         const groups = await Group.find(LIMIT, offset);
-        return res.status({
+        return res.json({
             groups
         });
     } catch (error) {

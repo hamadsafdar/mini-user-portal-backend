@@ -16,13 +16,7 @@ const add = ({ name, email, sAMAccountName, phoneNumber }) => {
     });
 };
 
-/**
- * This function removes a user against given ID
- * @param {Number} id - User's ID
- * @returns {Promise} empty array if successful or error if fails
- */
-
-const removeById = async (id) => {
+const removeById = (id) => {
     const query = `DELETE FROM ${USER} WHERE user_id = ${id};`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
@@ -32,21 +26,15 @@ const removeById = async (id) => {
     });
 };
 
-/**
- * This function returns single user against given ID
- * @param {Number} id - User's ID
- * @returns {Object | Error} User or error if fails
- */
-
 const getById = (id) => {
     const query = `SELECT * FROM ${USER} WHERE user_id = ${id};`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) {
                 reject(err);
-            } else {
+            } else if (rows.length > 0) {
                 resolve(rows[0]);
-            }
+            } else reject(new Error('NO_SUCH_USER'));
         });
     });
 };
@@ -76,7 +64,7 @@ const changeStatus = (id, status) => {
     });
 };
 
-const getTotalCount = async () => {
+const getTotalCount = () => {
     let query = `SELECT COUNT(*) ROW_COUNT FROM ${USER}`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
@@ -131,11 +119,12 @@ const addToGroup = (userId, groupIdArr) => {
     });
 };
 
-const removeFromGroup = async (userId, groupId) => {
-    const query = `DELETE FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id = ${groupId} ;`;
+const removeFromGroup = (userId, groupId) => {
+    const query = `DELETE FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id IN (${groupId.join(', ')}) ;`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 resolve(true);
@@ -172,6 +161,13 @@ const ifExists = (userId) => {
             }
         });
     });
+};
+
+//For end user
+
+const getGrantedApplications = (userId) => {
+    const userGroupQuery = `SELECT group_id FROM ${USER_GROUPS} WHERE user_id = ${userId};`;
+    const appGroupQuery = `SELECT app_id`;
 };
 
 module.exports = {

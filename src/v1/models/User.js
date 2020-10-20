@@ -85,4 +85,8 @@ User.removeFromGroup = async function (userId, groupId) {
     return await queries.removeFromGroup(userId, groupId);
 };
 
+//For end user
+
+User.getGrantedApplications = async function (userId) {};
+
 module.exports = User;

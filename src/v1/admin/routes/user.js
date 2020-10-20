@@ -4,6 +4,8 @@ const userController = require('../controllers/user');
 
 router.post('/', userController.create);
 
+router.delete('/membership', userController.removeFromGroup);
+
 router.get('/', userController.getAll);
 
 router.get('/:userId', userController.get);
@@ -12,10 +14,8 @@ router.delete('/:userId', userController.removeById);
 
 router.get('/status/:userId', userController.changeStatus);
 
-router.post('/membership/add', userController.addToGroup);
+router.post('/membership', userController.addToGroup);
 
-router.post('/membership/remove', userController.removeFromGroup);
-
-router.get('/groups/:userId', userController.getGroups);
+router.get('/membership/:userId', userController.getGroups);
 
 module.exports = router;

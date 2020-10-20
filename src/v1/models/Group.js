@@ -1,5 +1,5 @@
 const queries = require('../database/queries/group');
-const User = require('../models.new/User');
+const User = require('../models/User');
 
 function Group({
     GROUP_ID: id = null,

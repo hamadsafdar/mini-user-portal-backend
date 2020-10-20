@@ -50,9 +50,9 @@ const get = async (req, res) => {
     const { userId } = req.params;
     try {
         const user = await User.findById(userId);
-        if (user.length > 0)
+        if (user)
             return res.json({
-                user: user[0]
+                user: user
             });
         else
             return res.status(200).json({
@@ -96,10 +96,10 @@ const changeStatus = async (req, res) => {
 };
 
 const addToGroup = async (req, res) => {
-    const { userId, groupId } = req.body;
+    const { userId, groupIdArr } = req.body;
     try {
         // if (await validateMembershipAdd(userId, groupId)) {
-        await User.addToGroup(userId, groupId);
+        await User.addToGroup(userId, groupIdArr);
         return res.json({
             message: 'USER_ADDED_TO_GROUP'
         });
@@ -117,18 +117,12 @@ const addToGroup = async (req, res) => {
 };
 
 const removeFromGroup = async (req, res) => {
-    const { userId, groupId } = req.body;
+    const { userId, groupIdArr } = req.body;
     try {
-        // if (await validateMembershipDelete(userId, groupId)) {
-        await User.removeFromGroup(userId, groupId);
+        await User.removeFromGroup(userId, groupIdArr);
         return res.json({
             message: 'MEMBERSHIP_REMOVED'
         });
-        // } else {
-        //     return res.status(400).json({
-        //         message: 'INVALID_REQUEST'
-        //     });
-        // }
     } catch (error) {
         console.log(error);
         return res.status(500).json({
