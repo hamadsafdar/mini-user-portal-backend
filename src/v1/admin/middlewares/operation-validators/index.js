@@ -2,6 +2,12 @@ const Application = require('../../../models/Application');
 const Group = require('../../../models/Group');
 const User = require('../../../models/User');
 const { customFailResponse } = require('../../../util').responseGenerator;
+const { getNotIncludedProperties } = require('./user');
+const path = {
+    USER: '/api/v1/admin/user',
+    GROUP: '/api/v1/admin/group',
+    APP: '/api/v1/admin/application'
+};
 
 async function ifExists(req, res, next) {
     if (req.params.appId) {
@@ -19,4 +25,29 @@ async function ifExists(req, res, next) {
     }
 }
 
-module.exports = { ifExists };
+function addResourceValidator(req, res, next) {
+    if (req.path.includes(path.USER)) {
+        const user = req.body;
+        const propertiesNotIncluded = getNotIncludedProperties(user);
+        if (propertiesNotIncluded.length > 0) {
+            res.status(400).json({
+                message: 'INCOMPLETE_PROPERTIES',
+                propertiesNotIncluded
+            });
+        } else next();
+    }
+}
+
+async function checkUnique(req, res, next) {
+    const user = req.body;
+    const report = await User.getUniqueReport(user);
+    if (report.isUnique) next();
+    else {
+        res.status(400).json({
+            message: 'NOT_UNIQUE',
+            report
+        });
+    }
+}
+
+module.exports = { ifExists, addResourceValidator, checkUnique };

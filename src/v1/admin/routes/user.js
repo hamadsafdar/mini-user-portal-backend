@@ -12,7 +12,7 @@ router.get('/:userId', userController.get);
 
 router.delete('/:userId', userController.removeById);
 
-router.get('/status/:userId', userController.changeStatus);
+router.put('/status/:userId', userController.changeStatus);
 
 router.post('/membership', userController.addToGroup);
 

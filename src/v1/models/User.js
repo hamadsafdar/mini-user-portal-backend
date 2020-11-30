@@ -85,8 +85,23 @@ User.removeFromGroup = async function (userId, groupId) {
     return await queries.removeFromGroup(userId, groupId);
 };
 
+//Validation Purposes
+User.getUniqueReport = async function (user) {
+    return await queries.checkUnique(user);
+};
+
 //For end user
 
 User.getGrantedApplications = async function (userId) {};
+
+User.findBySAM = async function (sAMAccountName) {
+    try {
+        const foundUser = await queries.findBySAM(sAMAccountName);
+        if (foundUser.length > 0) Promise.resolve(new User(foundUser[0]));
+        else Promise.resolve(null);
+    } catch (error) {
+        Promise.reject(error);
+    }
+};
 
 module.exports = User;

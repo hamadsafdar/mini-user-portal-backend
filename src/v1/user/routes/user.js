@@ -1,12 +1,16 @@
 const express = require('express');
-const { authenticateToken } = require('../middlewares');
+const { authenticateToken, checkUserSynced } = require('../middlewares');
 const userController = require('../controllers/user');
 
 const router = express.Router();
 
-router.post('/authenticate', userController.authenticate);
+router.post('/authenticate', checkUserSynced, userController.authenticate);
 
-router.get('/applications', userController.fetchApplications);
+router.get(
+    '/applications',
+    authenticateToken,
+    userController.fetchApplications
+);
 
 router.get('/', authenticateToken, userController.fetchUser);
 

@@ -1,3 +1,4 @@
+const { response } = require('express');
 const db = require('../index');
 const connection = db.getInstance();
 const { USER, GROUP, USER_GROUPS } = db.table;
@@ -120,7 +121,9 @@ const addToGroup = (userId, groupIdArr) => {
 };
 
 const removeFromGroup = (userId, groupId) => {
-    const query = `DELETE FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id IN (${groupId.join(', ')}) ;`;
+    const query = `DELETE FROM ${USER_GROUPS} WHERE user_id = ${userId} AND group_id IN (${groupId.join(
+        ', '
+    )}) ;`;
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) {
@@ -170,6 +173,59 @@ const getGrantedApplications = (userId) => {
     const appGroupQuery = `SELECT app_id`;
 };
 
+const findBySAM = (sAMAccountName) => {
+    const query = `SELECT * FROM ${USER} WHERE sam_account_name = '${sAMAccountName}'`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+        });
+    });
+};
+
+const checkUnique = ({ sAMAccountName = '', email = '', phoneNumber = '' }) => {
+    const query = `
+    SELECT * FROM ${USER} WHERE email = '${email}';
+    SELECT * FROM ${USER} WHERE sam_account_name = '${sAMAccountName}';
+    SELECT * FROM ${USER} WHERE phone_number = '${phoneNumber}';
+    `;
+    return new Promise((resolve, reject) => {
+        const onResult = (err, rows) => {
+            console.log(rows);
+            if (err) reject(err);
+            else {
+                //get results in the same order queries are written
+                const [byEmail, bySAMName, byPhoneNumber] = rows;
+                //details of the attributes in report object
+                let report = {
+                    isUnique: true,
+                    emailExists: false,
+                    sAMAccountNameExists: false,
+                    phoneNumberExists: false
+                };
+                // check if there is any record found by given attributes
+                const noRecord =
+                    byEmail.length === 0 &&
+                    bySAMName.length === 0 &&
+                    byPhoneNumber.length === 0;
+
+                if (noRecord) {
+                    resolve(report);
+                } else {
+                    report.isUnique = false;
+                    report.emailExists = byEmail.length > 0 ? true : false;
+                    report.phoneNumberExists =
+                        byPhoneNumber.length > 0 ? true : false;
+                    report.sAMAccountNameExists =
+                        bySAMName.length > 0 ? true : false;
+                    resolve(report);
+                }
+            }
+        };
+        connection.query(query, onResult);
+    });
+};
+
 module.exports = {
     add,
     removeById,
@@ -182,5 +238,7 @@ module.exports = {
     addToGroup,
     removeFromGroup,
     checkMembership,
-    ifExists
+    ifExists,
+    checkUnique,
+    findBySAM
 };

@@ -66,15 +66,16 @@ const get = async (req, res) => {
 };
 
 const getAll = async (req, res) => {
-    const { pageNumber } = req.query;
+    const { iteration } = req.query;
     const LIMIT = 20;
-    const offset = LIMIT * (parseInt(pageNumber) - 1);
+    const offset = LIMIT * (parseInt(iteration) - 1);
     try {
         const users = await User.find(LIMIT, offset);
         return res.json({
             users
         });
     } catch (error) {
+        console.log(error);
         return internalErrorResponse(res);
     }
 };

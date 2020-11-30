@@ -49,7 +49,11 @@ const exists = (groupId) => {
 };
 
 const getAll = (limit, offset) => {
-    const query = `SELECT * FROM ${GROUP} ORDER BY group_id LIMIT ${limit} OFFSET ${offset};`;
+    let query = `SELECT * FROM ${GROUP} ORDER BY group_id `;
+    query +=
+        limit && offset
+            ? `LIMIT ${parseInt(limit)} OFFSET ${parseInt(offset)};`
+            : '';
     return new Promise((resolve, reject) => {
         connection.query(query, (err, rows) => {
             if (err) reject(err);

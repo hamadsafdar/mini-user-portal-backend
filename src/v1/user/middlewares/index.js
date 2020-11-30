@@ -26,22 +26,24 @@ function authenticateToken(req, res, next) {
     });
 }
 
-async function ifUserSynced(req, res, next) {
-    const { username } = req.body;
-    const domain = '@hrt.demo.com';
-    const principalName = username + domain;
+async function checkUserSynced(req, res, next) {
+    const { principalName } = req.body;
+    // const domain = '@hrt.demo.com';
+    // const principalName = username + domain;
     const ad = getADInstance();
     try {
-        const isADExists = await ad.userExists(principalName);
-        const isDBExists = true; //TODO: Check if user exists in application db
-        if (isADExists && isDBExist) next();
-        if (!isADExists)
+        const existsInAD = Boolean(await ad.userExists(principalName));
+        const existsInDB = Boolean(
+            await User.findBySAM(principalName.split('@')[0]) //splitting SAM Account Name and domain
+        );
+        if (existsInAD && existsInDB) next();
+        if (!existsInAD)
             return customFailResponse(res, 'USER_NOT_EXISTS_IN_AD', 400);
-        else if (!isDBExists)
+        else if (!existsInDB)
             return customFailResponse(res, 'USER_NOT_EXISTS_IN_APP', 400);
     } catch (error) {
         return internalErrorResponse(res);
     }
 }
 
-module.exports = { authenticateToken, ifUserSynced };
+module.exports = { authenticateToken, checkUserSynced };

@@ -20,11 +20,6 @@ Application.prototype.delete = async function () {
     return await queries.removeById(this.id);
 };
 
-Application.getGrantedAppilcations = async function (userId) {
-    //TODO: match groups of applications with user groups and return granted application
-    return;
-};
-
 Application.prototype.update = async function (newOptions) {};
 
 Application.delete = async function (appId) {

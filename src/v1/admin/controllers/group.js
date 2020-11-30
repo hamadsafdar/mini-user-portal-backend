@@ -47,21 +47,21 @@ async function getMembers(req, res) {
             total
         });
     } catch (error) {
-        console.log(error);
         return internalErrorResponse(res);
     }
 }
 
 async function getAll(req, res) {
-    const { pageNumber } = req.query;
+    const { iteration } = req.query;
     const LIMIT = 20;
-    const offset = LIMIT * (parseInt(pageNumber) - 1);
+    const offset = LIMIT * (parseInt(iteration) - 1);
     try {
         const groups = await Group.find(LIMIT, offset);
         return res.json({
             groups
         });
     } catch (error) {
+        console.log(error);
         return internalErrorResponse(res);
     }
 }

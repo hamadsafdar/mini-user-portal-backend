@@ -16,7 +16,9 @@ async function create(req, res) {
     });
     try {
         await application.save();
-        return successResponse(res, 'APPLICATION_CREATED');
+        return res.status(201).json({
+            message: 'APPLICATION_CREATED'
+        });
     } catch (error) {
         console.log(error);
         return internalErrorResponse(res);
@@ -37,27 +39,30 @@ async function getById(req, res) {
     const { appId } = req.params;
     try {
         const application = await Application.findById(appId);
+        const allowedGroups = await Application.getAllowedGroups(appId);
         return res.json({
-            application
+            application,
+            allowedGroups
         });
     } catch (error) {
-        console.log('Controller');
+        console.log(error);
         return internalErrorResponse(res);
     }
 }
 
 async function getAll(req, res) {
-    const { pageNumber } = req.query;
+    const { iteration } = req.query;
     const LIMIT = 20;
     let offset = 0;
-    offset = LIMIT * (parseInt(pageNumber) - 1);
+    offset = LIMIT * (parseInt(iteration) - 1);
 
     try {
         const applications = await Application.find(LIMIT, offset);
-        return res.json({
+        return res.status(200).json({
             applications
         });
     } catch (error) {
+        console.log(error);
         return internalErrorResponse(res);
     }
 }

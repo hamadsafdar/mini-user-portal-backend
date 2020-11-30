@@ -115,7 +115,7 @@ const getAllowedGroups = (appId) => {
         ${APPLICATION}.app_id = ${appId}
     `;
     return new Promise((resolve, reject) => {
-        connection.query((err, rows) => {
+        connection.query(query, (err, rows) => {
             if (err) reject(err);
             else resolve(rows);
         });
